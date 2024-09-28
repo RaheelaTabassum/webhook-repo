@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Events</title>
+</head>
+<body>
+
+    <h1>GitHub Events</h1>
+    <table id="eventsTable" border="1">
+        <thead>
+            <tr>
+                <th>Author</th>
+                <th>Action</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        // Function to fetch data using Fetch API
+        function fetchData() {
+            fetch('/webhook/get-events')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json(); // Parse JSON data
+                })
+                .then(data => {
+                    const tbody = document.getElementById('eventsTable').querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear existing rows
+                    data.forEach(event => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${event.author}</td>
+                            <td>${event.event_type}</td>
+                            <td>${event.timestamp}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error); // Log any errors
+                });
+        }
+
+        // Initial fetch and setup interval to fetch data every 15 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData(); // Initial fetch
+            setInterval(fetchData, 15000); // Fetch every 15 seconds
+        });
+    </script>
+
+</body>
+</html>
